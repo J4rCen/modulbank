@@ -13,11 +13,8 @@
 
 .playButton {
     position: absolute;
-    top: 50%;
-    left: 50%;
     z-index: 10;
     cursor: pointer;
-    transform: translate(-50%, -50%);
 }
 
 .videoPlayer {
@@ -28,7 +25,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: auto;
     padding-top: 10px;
-    width: auto;
+}
+
+.footerModal {
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
 }
