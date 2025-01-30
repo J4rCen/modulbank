@@ -14,60 +14,45 @@ import imageExitMaxSize from '../../public/cross.png'
 const VideoPlayer = () => {
     const videoRef = useRef(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [state, send] = useMachine(machine)
+    const [state, send] = useMachine(machine);
 
-    const ClosedButton = () => {
-        return (
-            <div className="footerModal">
-                <Tooltip title={state.context.isLarge ? 'Уменьшить видео' : 'Увеличить видео'}>
-                    <Button onClick={() => {send({type: 'resize'})}}>
-                        <img height={15} width={15} src={state.context.isLarge ? imageExitMaxSize : imageMaxSize} alt="increase video"/>
+    const toggleModal = (open: any) => {
+        setIsModalOpen(open);
+        if (!open) send({ type: 'key.escape' });
+    };
+
+    const FooterButton = () => (
+        <div className="footerModal">
+            {[{ type: 'resize', img: state.context.isLarge ? imageExitMaxSize : imageMaxSize, title: state.context.isLarge ? 'Уменьшить видео' : "Увеличить видео" },
+              { type: 'toggle', img: state.value === 'mini' ? imagePlay : imagePause, title: state.value === 'mini' ? 'Продолжить просмотр' : 'Поставить видео на паузу'}]
+            .map(({ type, img, title }) => (
+                <Tooltip key={type} title={title}>
+                    <Button onClick={() => send({ type })}>
+                        <img height={15} width={15} src={img} alt={title} />
                     </Button>
                 </Tooltip>
-                <Tooltip title={'Поставить видео на паузу'}>
-                    <Button onClick={() => send({type: 'toggle'})}>
-                        <img height={15} width={15} src={state.value === 'mini' ? imagePlay : imagePause} alt="pause video"/>
-                    </Button>
-                </Tooltip>
-            </div>
-        )
-    }
-
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
-    const handleCancel = () => {
-        setIsModalOpen(false);
-        send({type: 'key.escape'})
-    };
+            ))}
+        </div>
+    );
 
     return (
         <div id="VideoPlayer">
-            <div>
-                <div className="playerWrap center">
-                    <img className="playButton" hidden={state.matches("full")} src={imagePlayVideo} height={40} width={40} alt="start video" 
-                        onClick={() => {send({type: 'toggle'}), showModal()}}
+            <div className="playerWrap center">
+                {!state.matches("full") && (
+                    <img className="playButton" src={imagePlayVideo} height={40} width={40} alt="start video" 
+                        onClick={() => { send({ type: 'toggle' }); toggleModal(true); }}
                     />
-                    <img src={imagePreview} height={150} className="videoPlayer" width={300} alt="play video" />
-                </div>
-                <Modal
-                    className="videoWrap" 
-                    open={isModalOpen} onCancel={handleCancel}
-                    footer={<ClosedButton/>}
-                >
-                    <ReactPlayer
-                        id={'reactPlayer'}
-                        ref={videoRef} 
-                        loop={true}
-                        height={350}
-                        width={500}
-                        playing={state.matches("full")} 
-                        url={'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm'}
-                    />
-                </Modal>
+                )}
+                <img src={imagePreview} height={150} className="videoPlayer" width={300} alt="play video" />
             </div>
+            <Modal className="videoWrap" open={isModalOpen} onCancel={() => toggleModal(false)} footer={<FooterButton />}>
+                <ReactPlayer id="reactPlayer" ref={videoRef} loop height={350} width={500} 
+                    playing={state.matches("full")} url={'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm'}
+                />
+            </Modal>
         </div>
-    )
-}
+    );
+};
+
 
 export default VideoPlayer
